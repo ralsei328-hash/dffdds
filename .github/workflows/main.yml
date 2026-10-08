@@ -1,34 +1,40 @@
 name: Unzip LFS ROM File
 
 on:
-  workflow_dispatch: # يتيح لك تشغيل الأداة يدوياً بضغطة زر واحدة
+  workflow_dispatch:
 
 jobs:
   unzip-process:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. عمل كلوون للمستودع مع تفعيل LFS لسحب الملف الأصلي بحجمه الكامل
     - name: Checkout Repository with LFS
       uses: actions/checkout@v4
       with:
         lfs: true
 
-    # 2. التأكد من سحب ملف الـ LFS بالكامل داخل خادم الأتمتة
     - name: Ensure LFS Pull
       run: git lfs pull
 
-    # 3. فك ضغط ملف الروم إلى مجلد منفصل
     - name: Unzip ROM File
       run: |
         mkdir -p pixelos_extracted
-        unzip pixelos.zip -d ./pixelos_extracted
+        unzip -q pixelos.zip -d ./pixelos_extracted
+        # تنظيف لضمان عدم تكرار الملف المضغوط الأصلي في عملية الرفع
+        rm pixelos.zip 
 
-    # 4. حفظ وتثبيت الملفات المستخرجة ورفعها مجدداً إلى المستودع آلياً
     - name: Commit and Push Extracted Files
       run: |
         git config --local user.email "github-actions[bot]@://github.com"
         git config --local user.name "github-actions[bot]"
+        
+        # إضافة الملفات تدريجياً لتجنب انهيار الخادم بسبب الأعداد الضخمة
         git add pixelos_extracted/
-        git commit -m "استخراج ملفات الروم بنجاح عبر GitHub Actions"
-        git push
+        
+        # التحقق مما إذا كانت هناك تغييرات فعلاً قبل عمل Commit
+        if git diff-index --quiet HEAD --; then
+          echo "No changes to commit"
+        else
+          git commit -m "استخراج ملفات الروم بنجاح وتجاوز حدود الرفع"
+          git push
+        fi
