@@ -1,0 +1,9 @@
+ota-property-files=metadata:69:330,metadata.pb:467:212                 
+ota-required-cache=0
+ota-type=BLOCK
+post-build=samsung/starltexx/starlte:10/QP1A.190711.020/G960FXXSHFUJ2:user/release-keys
+post-build-incremental=1660463214
+post-sdk-level=32
+post-security-patch-level=2022-07-05
+post-timestamp=1660463150
+pre-device=starlte
